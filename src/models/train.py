@@ -30,6 +30,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 import mlflow
 import mlflow.pytorch
 
@@ -71,9 +72,10 @@ def run_epoch(
     optimizer: optim.Optimizer,
     device: torch.device,
     training: bool = True,
+    desc: str = "Training",
 ) -> Tuple[float, float]:
     """
-    Runs one epoch (train or eval).
+    Runs one epoch (train or eval) with live progress bar.
 
     Args:
         model:     The CNN model.
@@ -82,6 +84,7 @@ def run_epoch(
         optimizer: Optimizer (only used when training=True).
         device:    Compute device.
         training:  If True, computes gradients and updates weights.
+        desc:      Progress bar title description.
 
     Returns:
         Tuple of (avg_loss, accuracy_percent).
@@ -93,8 +96,10 @@ def run_epoch(
     total = 0
 
     ctx = torch.enable_grad() if training else torch.no_grad()
+    pbar = tqdm(loader, desc=desc, leave=False, dynamic_ncols=True)
+
     with ctx:
-        for images, labels in loader:
+        for images, labels in pbar:
             images, labels = images.to(device), labels.to(device)
 
             if training:
@@ -112,6 +117,11 @@ def run_epoch(
             correct  += predicted.eq(labels).sum().item()
             total    += labels.size(0)
 
+            # Update progress bar metrics live
+            current_loss = running_loss / total
+            current_acc  = 100.0 * correct / total
+            pbar.set_postfix({"loss": f"{current_loss:.4f}", "acc": f"{current_acc:.2f}%"})
+
     avg_loss = running_loss / total
     accuracy = 100.0 * correct / total
     return avg_loss, accuracy
@@ -127,7 +137,7 @@ def evaluate_on_loader(
     model.eval()
     y_true, y_pred = [], []
     with torch.no_grad():
-        for images, labels in loader:
+        for images, labels in tqdm(loader, desc="Generating Confusion Matrix", leave=False):
             images = images.to(device)
             outputs = model(images)
             _, preds = outputs.max(1)
@@ -142,14 +152,7 @@ def evaluate_on_loader(
 
 def train(config_path: str = "configs/config.yaml") -> None:
     """
-    Full training pipeline with MLflow experiment tracking.
-
-    Steps:
-      1. Load config & data
-      2. Build model
-      3. For each epoch: train → validate → log metrics → checkpoint
-      4. Evaluate on test set
-      5. Log artifacts (curves, confusion matrix, model) to MLflow
+    Full training pipeline with MLflow experiment tracking and live progress.
     """
     cfg = load_config(config_path)
     tr_cfg  = cfg["training"]
@@ -226,10 +229,12 @@ def train(config_path: str = "configs/config.yaml") -> None:
             t_start = time.time()
 
             train_loss, train_acc = run_epoch(
-                model, train_loader, criterion, optimizer, device, training=True
+                model, train_loader, criterion, optimizer, device,
+                training=True, desc=f"Epoch {epoch}/{tr_cfg['epochs']} [Train]"
             )
             val_loss, val_acc = run_epoch(
-                model, val_loader, criterion, optimizer, device, training=False
+                model, val_loader, criterion, optimizer, device,
+                training=False, desc=f"Epoch {epoch}/{tr_cfg['epochs']} [Val]"
             )
             scheduler.step()
 
@@ -283,7 +288,8 @@ def train(config_path: str = "configs/config.yaml") -> None:
         logger.info("Evaluating on test set …")
         y_true, y_pred = evaluate_on_loader(model, test_loader, device, class_names)
         test_loss, test_acc = run_epoch(
-            model, test_loader, criterion, optimizer, device, training=False
+            model, test_loader, criterion, optimizer, device,
+            training=False, desc="Test Set Evaluation"
         )
 
         mlflow.log_metrics({
