@@ -1,0 +1,47 @@
+stages:
+  # ──────────────────────────────────────────────────────────
+  # Stage 1: Download raw dataset from Kaggle
+  # ──────────────────────────────────────────────────────────
+  download:
+    cmd: python src/data/download_dataset.py
+    deps:
+      - src/data/download_dataset.py
+      - configs/config.yaml
+    outs:
+      - data/raw:
+          cache: true
+          persist: true    # do not clean between runs
+
+  # ──────────────────────────────────────────────────────────
+  # Stage 2: Train model & log to MLflow
+  # ──────────────────────────────────────────────────────────
+  train:
+    cmd: python src/models/train.py --config configs/config.yaml
+    deps:
+      - src/models/train.py
+      - src/models/baseline_cnn.py
+      - src/data/preprocess.py
+      - src/utils/helpers.py
+      - configs/config.yaml
+      - data/raw
+    outs:
+      - models/best_model.pt:
+          cache: true
+      - models/training_curves.png:
+          cache: false
+      - models/confusion_matrix.png:
+          cache: false
+      - models/classification_report.txt:
+          cache: false
+    metrics:
+      - models/metrics.json:
+          cache: false
+
+params:
+  - configs/config.yaml:
+      - training.epochs
+      - training.batch_size
+      - training.learning_rate
+      - model.filters
+      - model.fc_units
+      - dataset.train_split

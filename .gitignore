@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Data (tracked by DVC instead)
+data/raw/
+data/processed/
+!data/.gitignore
+
+# Models (large binaries tracked by DVC)
+models/*.pt
+models/*.h5
+models/*.pkl
+models/*.pth
+!models/.gitkeep
+
+# MLflow artifacts
+mlruns/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Kaggle
+*.json
+kaggle.json
+
+# Temp
+*.tmp
+*.log
+assignment_content.txt

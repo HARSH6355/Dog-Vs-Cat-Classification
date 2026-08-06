@@ -1,0 +1,83 @@
+# ============================================================
+# Cat vs Dog MLOps Pipeline - Centralized Configuration
+# ============================================================
+
+project:
+  name: "cat-vs-dog-mlops"
+  description: "Binary image classification for pet adoption platform"
+  version: "1.0.0"
+
+# ---------------------------------------------------------------
+# Paths (relative to project root)
+# ---------------------------------------------------------------
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  models: "models"
+  notebooks: "notebooks"
+  mlruns: "mlruns"
+
+# ---------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------
+dataset:
+  kaggle_id: "bhavikjikadara/dog-and-cat-classification-dataset"
+  classes:
+    - "cat"
+    - "dog"
+  image_size: [224, 224]
+  channels: 3
+  # Split ratios (must sum to 1.0)
+  train_split: 0.80
+  val_split: 0.10
+  test_split: 0.10
+  random_seed: 42
+
+# ---------------------------------------------------------------
+# Data Augmentation
+# ---------------------------------------------------------------
+augmentation:
+  horizontal_flip: true
+  vertical_flip: false
+  rotation_degrees: 15
+  brightness: 0.2
+  contrast: 0.2
+  saturation: 0.2
+  hue: 0.05
+
+# ---------------------------------------------------------------
+# Model: Baseline CNN
+# ---------------------------------------------------------------
+model:
+  name: "baseline_cnn"
+  num_classes: 2
+  dropout_rate: 0.5
+  # Conv block filters [block1, block2, block3]
+  filters: [32, 64, 128]
+  fc_units: 512
+
+# ---------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------
+training:
+  epochs: 20
+  batch_size: 32
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  optimizer: "adam"
+  scheduler: "step_lr"
+  scheduler_step_size: 7
+  scheduler_gamma: 0.1
+  num_workers: 4
+  early_stopping_patience: 5
+
+# ---------------------------------------------------------------
+# MLflow Experiment Tracking
+# ---------------------------------------------------------------
+mlflow:
+  experiment_name: "cat-vs-dog-baseline"
+  tracking_uri: "mlruns"
+  run_name_prefix: "baseline_cnn"
+  log_model: true
+  log_confusion_matrix: true
+  log_loss_curves: true
