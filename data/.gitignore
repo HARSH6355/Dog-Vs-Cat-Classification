@@ -1,0 +1,4 @@
+# data/ folder is managed by DVC — do NOT commit actual files
+# The .dvc pointer files ARE committed to Git
+/raw
+/processed
