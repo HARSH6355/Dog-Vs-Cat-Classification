@@ -4,10 +4,12 @@
 # Install: pip install -r requirements.txt
 # ============================================================
 
+--extra-index-url https://download.pytorch.org/whl/cu121
+
 # ── Core ML / Deep Learning ─────────────────────────────────
-torch==2.3.1
-torchvision==0.18.1
-torchaudio==2.3.1
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
 
 # ── Data & Preprocessing ────────────────────────────────────
 numpy==1.26.4
@@ -17,6 +19,8 @@ pandas==2.2.2
 
 # ── Experiment Tracking ─────────────────────────────────────
 mlflow==2.14.1
+setuptools<70  # Required for pkg_resources used by mlflow 2.14.1
+
 
 # ── Kaggle Dataset Download ─────────────────────────────────
 kagglehub==0.3.4
