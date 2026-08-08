@@ -191,15 +191,23 @@ def save_checkpoint(
     epoch: int,
     history: dict,
     save_path: str,
+    scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+    best_val_acc: float = 0.0,
+    patience_ctr: int = 0,
+    run_id: Optional[str] = None,
     is_best: bool = False,
 ) -> None:
-    """Saves model + optimizer state to disk."""
+    """Saves model + optimizer + scheduler state and training metadata to disk."""
     Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     state = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
+        "scheduler_state_dict": scheduler.state_dict() if scheduler is not None else None,
         "history": history,
+        "best_val_acc": best_val_acc,
+        "patience_ctr": patience_ctr,
+        "run_id": run_id,
     }
     torch.save(state, save_path)
     if is_best:
@@ -211,16 +219,24 @@ def save_checkpoint(
 
 def load_checkpoint(
     model: torch.nn.Module,
-    optimizer: Optional[torch.optim.Optimizer],
-    checkpoint_path: str,
-    device: torch.device,
-) -> Tuple[torch.nn.Module, Optional[torch.optim.Optimizer], int, dict]:
-    """Loads model + optimizer from a checkpoint file."""
-    state = torch.load(checkpoint_path, map_location=device)
+    optimizer: Optional[torch.optim.Optimizer] = None,
+    checkpoint_path: str = "",
+    device: Optional[torch.device] = None,
+    scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+) -> Tuple[torch.nn.Module, Optional[torch.optim.Optimizer], Optional[torch.optim.lr_scheduler._LRScheduler], int, dict, float, int, Optional[str]]:
+    """Loads model, optimizer, scheduler, and metadata from a checkpoint file."""
+    if device is None:
+        device = get_device()
+    state = torch.load(checkpoint_path, map_location=device, weights_only=False)
     model.load_state_dict(state["model_state_dict"])
-    if optimizer is not None:
+    if optimizer is not None and state.get("optimizer_state_dict") is not None:
         optimizer.load_state_dict(state["optimizer_state_dict"])
-    epoch   = state.get("epoch", 0)
-    history = state.get("history", {})
+    if scheduler is not None and state.get("scheduler_state_dict") is not None:
+        scheduler.load_state_dict(state["scheduler_state_dict"])
+    epoch = state.get("epoch", 0)
+    history = state.get("history", {"train_loss": [], "val_loss": [], "train_acc": [], "val_acc": []})
+    best_val_acc = state.get("best_val_acc", 0.0)
+    patience_ctr = state.get("patience_ctr", 0)
+    run_id = state.get("run_id", None)
     logger.info(f"Loaded checkpoint from epoch {epoch}: {checkpoint_path}")
-    return model, optimizer, epoch, history
+    return model, optimizer, scheduler, epoch, history, best_val_acc, patience_ctr, run_id

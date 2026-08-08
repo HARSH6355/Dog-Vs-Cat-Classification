@@ -21,7 +21,7 @@ import time
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import yaml
 import numpy as np
@@ -46,6 +46,7 @@ from src.utils.helpers import (
     plot_confusion_matrix,
     get_classification_report,
     save_checkpoint,
+    load_checkpoint,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -150,9 +151,10 @@ def evaluate_on_loader(
 # Main Training Loop
 # ─────────────────────────────────────────────────────────────────────────────
 
-def train(config_path: str = "configs/config.yaml") -> None:
+def train(config_path: str = "configs/config.yaml", resume_path: Optional[str] = None) -> None:
     """
     Full training pipeline with MLflow experiment tracking and live progress.
+    Supports resuming training from saved checkpoints.
     """
     cfg = load_config(config_path)
     tr_cfg  = cfg["training"]
@@ -183,6 +185,51 @@ def train(config_path: str = "configs/config.yaml") -> None:
         gamma=tr_cfg["scheduler_gamma"],
     )
 
+    # ── Checkpoint / Resume Setup ──────────────────────────────────────────────
+    start_epoch = 1
+    history: Dict[str, List[float]] = {
+        "train_loss": [], "val_loss": [],
+        "train_acc":  [], "val_acc":  [],
+    }
+    best_val_acc = 0.0
+    patience_ctr = 0
+    patience     = tr_cfg.get("early_stopping_patience", 5)
+    saved_run_id = None
+
+    models_dir = Path(cfg["paths"]["models"])
+    models_dir.mkdir(parents=True, exist_ok=True)
+    latest_ckpt_path = str(models_dir / "latest_checkpoint.pt")
+    best_ckpt_path   = str(models_dir / "best_model.pt")
+
+    if resume_path:
+        if resume_path in ["latest", "true", "True"]:
+            if Path(latest_ckpt_path).exists():
+                resume_path = latest_ckpt_path
+            elif Path(best_ckpt_path).exists():
+                resume_path = best_ckpt_path
+            else:
+                ckpts = sorted(models_dir.glob("checkpoint_epoch_*.pt"))
+                resume_path = str(ckpts[-1]) if ckpts else None
+
+        elif resume_path == "best":
+            resume_path = best_ckpt_path
+
+        if resume_path and Path(resume_path).exists():
+            model, optimizer, scheduler, last_epoch, history, best_val_acc, patience_ctr, saved_run_id = load_checkpoint(
+                model=model,
+                optimizer=optimizer,
+                checkpoint_path=resume_path,
+                device=device,
+                scheduler=scheduler,
+            )
+            start_epoch = last_epoch + 1
+            logger.info(f"🔄 Resuming training from Epoch {start_epoch}/{tr_cfg['epochs']} (Loaded from {resume_path})")
+        else:
+            logger.warning(f"⚠️ Checkpoint '{resume_path}' not found. Starting fresh training from Epoch 1.")
+
+    if start_epoch > tr_cfg["epochs"]:
+        logger.info(f"✅ Training already complete for all {tr_cfg['epochs']} epochs.")
+
     # ── MLflow Setup ─────────────────────────────────────────────────────────
     tracking_uri = str(Path(ml_cfg["tracking_uri"]).resolve())
     mlflow.set_tracking_uri(f"file:///{tracking_uri}")
@@ -191,41 +238,43 @@ def train(config_path: str = "configs/config.yaml") -> None:
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     run_name = f"{ml_cfg['run_name_prefix']}_{timestamp}"
 
-    with mlflow.start_run(run_name=run_name) as run:
-        run_id = run.info.run_id
-        logger.info(f"MLflow run started → run_id: {run_id}")
+    run_kwargs = {}
+    if saved_run_id:
+        try:
+            mlflow.get_run(saved_run_id)
+            run_kwargs["run_id"] = saved_run_id
+            logger.info(f"Re-attaching to existing MLflow run: {saved_run_id}")
+        except Exception:
+            run_kwargs["run_name"] = f"{run_name}_resumed"
+    else:
+        run_kwargs["run_name"] = run_name
 
-        # ── Log hyperparameters ───────────────────────────────────────────────
-        mlflow.log_params({
-            "epochs":            tr_cfg["epochs"],
-            "batch_size":        tr_cfg["batch_size"],
-            "learning_rate":     tr_cfg["learning_rate"],
-            "weight_decay":      tr_cfg["weight_decay"],
-            "optimizer":         tr_cfg["optimizer"],
-            "scheduler":         tr_cfg["scheduler"],
-            "scheduler_step":    tr_cfg["scheduler_step_size"],
-            "scheduler_gamma":   tr_cfg["scheduler_gamma"],
-            "model_filters":     str(cfg["model"]["filters"]),
-            "model_fc_units":    cfg["model"]["fc_units"],
-            "model_dropout":     cfg["model"]["dropout_rate"],
-            "num_parameters":    count_parameters(model),
-            "image_size":        str(ds_cfg["image_size"]),
-            "train_split":       ds_cfg["train_split"],
-            "augmentation":      str(cfg["augmentation"]),
-        })
+    with mlflow.start_run(**run_kwargs) as run:
+        run_id = run.info.run_id
+        logger.info(f"MLflow run active → run_id: {run_id}")
+
+        if not saved_run_id:
+            # Log hyperparameters for new run
+            mlflow.log_params({
+                "epochs":            tr_cfg["epochs"],
+                "batch_size":        tr_cfg["batch_size"],
+                "learning_rate":     tr_cfg["learning_rate"],
+                "weight_decay":      tr_cfg["weight_decay"],
+                "optimizer":         tr_cfg["optimizer"],
+                "scheduler":         tr_cfg["scheduler"],
+                "scheduler_step":    tr_cfg["scheduler_step_size"],
+                "scheduler_gamma":   tr_cfg["scheduler_gamma"],
+                "model_filters":     str(cfg["model"]["filters"]),
+                "model_fc_units":    cfg["model"]["fc_units"],
+                "model_dropout":     cfg["model"]["dropout_rate"],
+                "num_parameters":    count_parameters(model),
+                "image_size":        str(ds_cfg["image_size"]),
+                "train_split":       ds_cfg["train_split"],
+                "augmentation":      str(cfg["augmentation"]),
+            })
 
         # ── Training Loop ────────────────────────────────────────────────────
-        history: Dict[str, List[float]] = {
-            "train_loss": [], "val_loss": [],
-            "train_acc":  [], "val_acc":  [],
-        }
-
-        best_val_acc  = 0.0
-        patience_ctr  = 0
-        patience      = tr_cfg.get("early_stopping_patience", 5)
-        best_ckpt_path = str(Path(cfg["paths"]["models"]) / "best_model.pt")
-
-        for epoch in range(1, tr_cfg["epochs"] + 1):
+        for epoch in range(start_epoch, tr_cfg["epochs"] + 1):
             t_start = time.time()
 
             train_loss, train_acc = run_epoch(
@@ -266,18 +315,29 @@ def train(config_path: str = "configs/config.yaml") -> None:
             if is_best:
                 best_val_acc = val_acc
                 patience_ctr = 0
-                save_checkpoint(
-                    model, optimizer, epoch, history,
-                    save_path=best_ckpt_path,
-                    is_best=True,
-                )
+
             else:
                 patience_ctr += 1
 
-            # Save latest checkpoint every 5 epochs
+            # Save latest checkpoint every completed epoch
+            save_checkpoint(
+                model, optimizer, epoch, history,
+                save_path=latest_ckpt_path,
+                scheduler=scheduler,
+                best_val_acc=best_val_acc,
+                patience_ctr=patience_ctr,
+                run_id=run_id,
+                is_best=is_best,
+            )
+
+            # Save periodic checkpoint every 5 epochs
             if epoch % 5 == 0:
-                ckpt = str(Path(cfg["paths"]["models"]) / f"checkpoint_epoch_{epoch:03d}.pt")
-                save_checkpoint(model, optimizer, epoch, history, ckpt)
+                ckpt = str(models_dir / f"checkpoint_epoch_{epoch:03d}.pt")
+                save_checkpoint(
+                    model, optimizer, epoch, history, ckpt,
+                    scheduler=scheduler, best_val_acc=best_val_acc,
+                    patience_ctr=patience_ctr, run_id=run_id,
+                )
 
             # Early stopping
             if patience_ctr >= patience:
@@ -324,9 +384,9 @@ def train(config_path: str = "configs/config.yaml") -> None:
 
         # 4. Log model (best checkpoint)
         if ml_cfg.get("log_model", True):
-            # Load best weights before logging
-            best_state = torch.load(best_ckpt_path, map_location=device)
-            model.load_state_dict(best_state["model_state_dict"])
+            if Path(best_ckpt_path).exists():
+                best_state = torch.load(best_ckpt_path, map_location=device, weights_only=False)
+                model.load_state_dict(best_state["model_state_dict"])
             mlflow.pytorch.log_model(model, artifact_path="model")
 
         logger.info(f"✅ Training complete! Best Val Acc: {best_val_acc:.2f}%")
@@ -346,6 +406,10 @@ def parse_args():
     )
     parser.add_argument("--epochs", type=int, default=None, help="Override epochs from config")
     parser.add_argument("--lr",     type=float, default=None, help="Override learning rate")
+    parser.add_argument(
+        "--resume", type=str, nargs="?", const="latest", default=None,
+        help="Resume training from checkpoint path (or 'latest' for models/latest_checkpoint.pt, 'best' for models/best_model.pt)"
+    )
     return parser.parse_args()
 
 
@@ -363,4 +427,4 @@ if __name__ == "__main__":
     if args.lr:
         cfg["training"]["learning_rate"] = args.lr
 
-    train(args.config)
+    train(args.config, resume_path=args.resume)
