@@ -57,9 +57,8 @@ overnight_run.log
 
 # ── Docs & extras ─────────────────────────────────────────────
 *.pdf
-*.txt
-README.md
 assignment_content.txt
+README.md
 
 # ── Model checkpoints (only keep best_model.pt via COPY in Dockerfile)
 models/checkpoint_epoch_*.pt
