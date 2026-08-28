@@ -1,0 +1,73 @@
+# ── Python cache ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── Training data (huge, not needed in container) ─────────────
+data/
+
+# ── MLflow experiment runs ────────────────────────────────────
+mlruns/
+mlartifacts/
+
+# ── Jupyter notebooks ─────────────────────────────────────────
+notebooks/
+*.ipynb
+*.ipynb_checkpoints/
+.ipynb_checkpoints/
+
+# ── Git & DVC ─────────────────────────────────────────────────
+.git/
+.gitignore
+.dvc/
+.dvcignore
+dvc.yaml
+dvc.lock
+
+# ── Test files & cache ────────────────────────────────────────
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ── VS Code & IDE ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+
+# ── Virtual environments ──────────────────────────────────────
+venv/
+env/
+.env
+.venv/
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+overnight_run.log
+
+# ── Docs & extras ─────────────────────────────────────────────
+*.pdf
+*.txt
+README.md
+assignment_content.txt
+
+# ── Model checkpoints (only keep best_model.pt via COPY in Dockerfile)
+models/checkpoint_epoch_*.pt
+models/latest_checkpoint.pt
+models/*.png
+models/classification_report.txt
+
+# ── Docker files themselves (avoid recursive copy confusion) ──
+Dockerfile
+docker-compose.yml
+.dockerignore
