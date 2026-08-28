@@ -1,0 +1,92 @@
+# ============================================================
+# k8s/deployment.yaml — Cat vs Dog Classifier API
+# ============================================================
+# Kubernetes Deployment for the inference service.
+# Uses the image published to GHCR by the CI pipeline.
+#
+# Deploy:
+#   kubectl apply -f k8s/
+#
+# Check status:
+#   kubectl get pods -n cat-dog
+#   kubectl logs -n cat-dog -l app=cat-dog-api
+# ============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cat-dog-api
+  namespace: cat-dog
+  labels:
+    app: cat-dog-api
+    version: "1.0.0"
+    managed-by: github-actions
+spec:
+  replicas: 2                          # 2 replicas for high availability
+  selector:
+    matchLabels:
+      app: cat-dog-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0                # Zero-downtime deployments
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: cat-dog-api
+        version: "1.0.0"
+    spec:
+      containers:
+        - name: cat-dog-api
+          # Image published by GitHub Actions CI pipeline to GHCR
+          image: ghcr.io/harsh6355/dog-vs-cat-classification:latest
+          imagePullPolicy: Always      # Always pull — ensures latest image on restart
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+
+          # ── Resource limits ───────────────────────────────
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          # ── Liveness probe: restart pod if API is stuck ───
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 10
+
+          # ── Readiness probe: only send traffic when ready ─
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+          # ── Environment variables ─────────────────────────
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+
+      # ── Pull secret for GHCR (if repo is private) ─────────
+      # Uncomment below if GHCR image is private:
+      # imagePullSecrets:
+      #   - name: ghcr-pull-secret
+
+      # ── Pod restart policy ────────────────────────────────
+      restartPolicy: Always

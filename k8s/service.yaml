@@ -1,0 +1,40 @@
+# ============================================================
+# k8s/service.yaml — Cat vs Dog Classifier API
+# ============================================================
+# Kubernetes Service to expose the Deployment.
+# Port 80 (external) → Port 8000 (container)
+#
+# For local testing with minikube:
+#   minikube service cat-dog-api -n cat-dog
+#
+# For local testing with kubectl port-forward:
+#   kubectl port-forward svc/cat-dog-api 8000:80 -n cat-dog
+# ============================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cat-dog
+  labels:
+    app: cat-dog-api
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cat-dog-api
+  namespace: cat-dog
+  labels:
+    app: cat-dog-api
+spec:
+  # LoadBalancer exposes the service externally
+  # Use NodePort for local minikube/kind clusters
+  type: LoadBalancer
+  selector:
+    app: cat-dog-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80            # External port (clients connect here)
+      targetPort: 8000    # Container port (FastAPI listens here)

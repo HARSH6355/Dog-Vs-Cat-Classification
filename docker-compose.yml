@@ -1,27 +1,35 @@
 # ============================================================
 # docker-compose.yml — Cat vs Dog Classifier API
 # ============================================================
-# Usage:
-#   docker compose up --build        # Build + start
-#   docker compose up -d             # Start in background
-#   docker compose down              # Stop
+# Two profiles:
 #
-# Once running, open:
-#   http://localhost:8000/health
-#   http://localhost:8000/docs       (Swagger UI)
+#   DEV  (builds from local source — for development):
+#     docker compose --profile dev up --build
+#
+#   PROD (pulls from GHCR — mirrors CI/CD deployment):
+#     docker compose --profile prod pull
+#     docker compose --profile prod up -d
+#
+# Default (no profile — same as dev, builds locally):
+#     docker compose up --build
+#
+# Stop:
+#     docker compose down
 # ============================================================
 
 services:
-  cat-dog-api:
+
+  # ── Development: build from local Dockerfile ─────────────
+  cat-dog-api-dev:
+    profiles: [ "dev", "default" ]
     build:
       context: .
       dockerfile: Dockerfile
-    image: cat-dog-classifier:v1
-    container_name: cat_dog_classifier
+    image: cat-dog-classifier:local
+    container_name: cat_dog_classifier_dev
     ports:
       - "8000:8000"
     volumes:
-      # Mount model volume as read-only for safety
       - ./models:/app/models:ro
     environment:
       - PYTHONUNBUFFERED=1
@@ -34,15 +42,20 @@ services:
       retries: 3
       start_period: 30s
 
-# ── Optional: Add a simple Swagger UI viewer ─────────────────────────────────
-# Uncomment to browse the API with a separate Swagger UI container
-# (the FastAPI /docs endpoint already provides this built-in)
-#
-# swagger-ui:
-#   image: swaggerapi/swagger-ui
-#   ports:
-#     - "8080:8080"
-#   environment:
-#     - SWAGGER_JSON_URL=http://cat-dog-api:8000/openapi.json
-#   depends_on:
-#     - cat-dog-api
+  # ── Production: pull pre-built image from GHCR ───────────
+  cat-dog-api-prod:
+    profiles: [ "prod" ]
+    image: ghcr.io/harsh6355/dog-vs-cat-classification:latest
+    container_name: cat_dog_classifier_prod
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
