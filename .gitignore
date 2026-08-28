@@ -25,12 +25,13 @@ data/raw/
 data/processed/
 !data/.gitignore
 
-# Models (large binaries tracked by DVC)
+# Models (large binaries tracked by DVC — except best_model.pt for CI/Docker)
 models/*.pt
 models/*.h5
 models/*.pkl
 models/*.pth
 !models/.gitkeep
+!models/best_model.pt
 
 # MLflow artifacts
 mlruns/
