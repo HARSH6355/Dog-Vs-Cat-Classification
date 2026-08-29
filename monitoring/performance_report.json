@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29T09:53:01.475659Z",
+  "generated_at": "2026-08-29T10:42:13.911996Z",
   "image_source": "real (data/raw/PetImages/)",
   "total_requests": 20,
   "successful_predictions": 20,
@@ -7,8 +7,8 @@
   "labeled_samples": 20,
   "correct_predictions": 14,
   "accuracy": 0.7,
-  "avg_latency_ms": 75.44,
-  "p95_latency_ms": 515.02,
+  "avg_latency_ms": 23.91,
+  "p95_latency_ms": 36.13,
   "avg_confidence": 0.7874,
   "class_distribution": {
     "cat": 16,
@@ -26,9 +26,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.9612,
-      "latency_ms": 515.02,
+      "latency_ms": 32.45,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:21.661222Z"
+      "timestamp": "2026-08-29T10:42:13.092511Z"
     },
     {
       "request_id": 2,
@@ -36,9 +36,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.5666,
-      "latency_ms": 52.79,
+      "latency_ms": 36.13,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:23.739542Z"
+      "timestamp": "2026-08-29T10:42:13.144094Z"
     },
     {
       "request_id": 3,
@@ -46,9 +46,9 @@
       "true_label": "dog",
       "predicted": "dog",
       "confidence": 0.9666,
-      "latency_ms": 53.57,
+      "latency_ms": 25.8,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:25.842771Z"
+      "timestamp": "2026-08-29T10:42:13.201054Z"
     },
     {
       "request_id": 4,
@@ -56,9 +56,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.9208,
-      "latency_ms": 51.53,
+      "latency_ms": 14.85,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:27.925341Z"
+      "timestamp": "2026-08-29T10:42:13.288155Z"
     },
     {
       "request_id": 5,
@@ -66,9 +66,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.9447,
-      "latency_ms": 52.83,
+      "latency_ms": 24.1,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:30.046552Z"
+      "timestamp": "2026-08-29T10:42:13.336497Z"
     },
     {
       "request_id": 6,
@@ -76,9 +76,9 @@
       "true_label": "dog",
       "predicted": "cat",
       "confidence": 0.7386,
-      "latency_ms": 51.09,
+      "latency_ms": 23.63,
       "correct": false,
-      "timestamp": "2026-08-29T09:52:32.133499Z"
+      "timestamp": "2026-08-29T10:42:13.368964Z"
     },
     {
       "request_id": 7,
@@ -86,9 +86,9 @@
       "true_label": "dog",
       "predicted": "dog",
       "confidence": 0.6737,
-      "latency_ms": 51.27,
+      "latency_ms": 15.79,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:34.236913Z"
+      "timestamp": "2026-08-29T10:42:13.392029Z"
     },
     {
       "request_id": 8,
@@ -96,9 +96,9 @@
       "true_label": "dog",
       "predicted": "dog",
       "confidence": 0.5352,
-      "latency_ms": 52.63,
+      "latency_ms": 23.34,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:36.311947Z"
+      "timestamp": "2026-08-29T10:42:13.445849Z"
     },
     {
       "request_id": 9,
@@ -106,9 +106,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.8736,
-      "latency_ms": 52.74,
+      "latency_ms": 24.77,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:38.397429Z"
+      "timestamp": "2026-08-29T10:42:13.494868Z"
     },
     {
       "request_id": 10,
@@ -116,9 +116,9 @@
       "true_label": "dog",
       "predicted": "cat",
       "confidence": 0.7349,
-      "latency_ms": 52.36,
+      "latency_ms": 25.5,
       "correct": false,
-      "timestamp": "2026-08-29T09:52:40.487315Z"
+      "timestamp": "2026-08-29T10:42:13.531768Z"
     },
     {
       "request_id": 11,
@@ -126,9 +126,9 @@
       "true_label": "dog",
       "predicted": "cat",
       "confidence": 0.6278,
-      "latency_ms": 51.53,
+      "latency_ms": 18.1,
       "correct": false,
-      "timestamp": "2026-08-29T09:52:42.593854Z"
+      "timestamp": "2026-08-29T10:42:13.558994Z"
     },
     {
       "request_id": 12,
@@ -136,9 +136,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.8215,
-      "latency_ms": 53.04,
+      "latency_ms": 25.52,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:44.723633Z"
+      "timestamp": "2026-08-29T10:42:13.594216Z"
     },
     {
       "request_id": 13,
@@ -146,9 +146,9 @@
       "true_label": "dog",
       "predicted": "cat",
       "confidence": 0.6285,
-      "latency_ms": 52.81,
+      "latency_ms": 25.72,
       "correct": false,
-      "timestamp": "2026-08-29T09:52:46.817809Z"
+      "timestamp": "2026-08-29T10:42:13.650798Z"
     },
     {
       "request_id": 14,
@@ -156,9 +156,9 @@
       "true_label": "dog",
       "predicted": "cat",
       "confidence": 0.8401,
-      "latency_ms": 52.74,
+      "latency_ms": 25.33,
       "correct": false,
-      "timestamp": "2026-08-29T09:52:48.902774Z"
+      "timestamp": "2026-08-29T10:42:13.683008Z"
     },
     {
       "request_id": 15,
@@ -166,9 +166,9 @@
       "true_label": "dog",
       "predicted": "cat",
       "confidence": 0.6521,
-      "latency_ms": 52.65,
+      "latency_ms": 23.86,
       "correct": false,
-      "timestamp": "2026-08-29T09:52:51.000622Z"
+      "timestamp": "2026-08-29T10:42:13.726798Z"
     },
     {
       "request_id": 16,
@@ -176,9 +176,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.6609,
-      "latency_ms": 52.74,
+      "latency_ms": 25.89,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:53.082731Z"
+      "timestamp": "2026-08-29T10:42:13.778829Z"
     },
     {
       "request_id": 17,
@@ -186,9 +186,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.9305,
-      "latency_ms": 51.99,
+      "latency_ms": 19.92,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:55.183236Z"
+      "timestamp": "2026-08-29T10:42:13.805082Z"
     },
     {
       "request_id": 18,
@@ -196,9 +196,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.8064,
-      "latency_ms": 52.18,
+      "latency_ms": 22.13,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:57.297655Z"
+      "timestamp": "2026-08-29T10:42:13.837061Z"
     },
     {
       "request_id": 19,
@@ -206,9 +206,9 @@
       "true_label": "dog",
       "predicted": "dog",
       "confidence": 0.9525,
-      "latency_ms": 51.59,
+      "latency_ms": 24.5,
       "correct": true,
-      "timestamp": "2026-08-29T09:52:59.403794Z"
+      "timestamp": "2026-08-29T10:42:13.872100Z"
     },
     {
       "request_id": 20,
@@ -216,9 +216,9 @@
       "true_label": "cat",
       "predicted": "cat",
       "confidence": 0.9121,
-      "latency_ms": 51.66,
+      "latency_ms": 20.88,
       "correct": true,
-      "timestamp": "2026-08-29T09:53:01.475045Z"
+      "timestamp": "2026-08-29T10:42:13.910980Z"
     }
   ]
 }
