@@ -46,9 +46,11 @@ Thumbs.db
 .idea/
 *.iml
 
-# Kaggle
+# Kaggle credentials (keep secret)
 *.json
 kaggle.json
+# Allow the monitoring report to be committed
+!monitoring/performance_report.json
 
 # Temp
 *.tmp

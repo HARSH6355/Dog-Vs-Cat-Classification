@@ -1,0 +1,224 @@
+{
+  "generated_at": "2026-08-29T09:13:41.948968Z",
+  "image_source": "real (data/raw/PetImages/)",
+  "total_requests": 20,
+  "successful_predictions": 20,
+  "failed_predictions": 0,
+  "labeled_samples": 20,
+  "correct_predictions": 14,
+  "accuracy": 0.7,
+  "avg_latency_ms": 35.22,
+  "p95_latency_ms": 435.8,
+  "avg_confidence": 0.7874,
+  "class_distribution": {
+    "cat": 16,
+    "dog": 4
+  },
+  "true_label_distribution": {
+    "cat": 10,
+    "dog": 10,
+    "unknown": 0
+  },
+  "records": [
+    {
+      "request_id": 1,
+      "filename": "153.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.9612,
+      "latency_ms": 435.8,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:02.697136Z"
+    },
+    {
+      "request_id": 2,
+      "filename": "5869.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.5666,
+      "latency_ms": 11.47,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:04.764774Z"
+    },
+    {
+      "request_id": 3,
+      "filename": "12380.jpg",
+      "true_label": "dog",
+      "predicted": "dog",
+      "confidence": 0.9666,
+      "latency_ms": 10.47,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:06.819934Z"
+    },
+    {
+      "request_id": 4,
+      "filename": "9615.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.9208,
+      "latency_ms": 9.64,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:08.887831Z"
+    },
+    {
+      "request_id": 5,
+      "filename": "7684.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.9447,
+      "latency_ms": 10.13,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:10.945933Z"
+    },
+    {
+      "request_id": 6,
+      "filename": "1723.jpg",
+      "true_label": "dog",
+      "predicted": "cat",
+      "confidence": 0.7386,
+      "latency_ms": 9.61,
+      "correct": false,
+      "timestamp": "2026-08-29T09:13:13.023721Z"
+    },
+    {
+      "request_id": 7,
+      "filename": "11651.jpg",
+      "true_label": "dog",
+      "predicted": "dog",
+      "confidence": 0.6737,
+      "latency_ms": 8.79,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:15.061198Z"
+    },
+    {
+      "request_id": 8,
+      "filename": "125.jpg",
+      "true_label": "dog",
+      "predicted": "dog",
+      "confidence": 0.5352,
+      "latency_ms": 10.12,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:17.104761Z"
+    },
+    {
+      "request_id": 9,
+      "filename": "10417.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.8736,
+      "latency_ms": 10.57,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:19.171199Z"
+    },
+    {
+      "request_id": 10,
+      "filename": "6716.jpg",
+      "true_label": "dog",
+      "predicted": "cat",
+      "confidence": 0.7349,
+      "latency_ms": 11.04,
+      "correct": false,
+      "timestamp": "2026-08-29T09:13:21.244211Z"
+    },
+    {
+      "request_id": 11,
+      "filename": "7893.jpg",
+      "true_label": "dog",
+      "predicted": "cat",
+      "confidence": 0.6278,
+      "latency_ms": 10.18,
+      "correct": false,
+      "timestamp": "2026-08-29T09:13:23.293452Z"
+    },
+    {
+      "request_id": 12,
+      "filename": "5660.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.8215,
+      "latency_ms": 10.35,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:25.341357Z"
+    },
+    {
+      "request_id": 13,
+      "filename": "7175.jpg",
+      "true_label": "dog",
+      "predicted": "cat",
+      "confidence": 0.6285,
+      "latency_ms": 16.92,
+      "correct": false,
+      "timestamp": "2026-08-29T09:13:27.391907Z"
+    },
+    {
+      "request_id": 14,
+      "filename": "6241.jpg",
+      "true_label": "dog",
+      "predicted": "cat",
+      "confidence": 0.8401,
+      "latency_ms": 16.81,
+      "correct": false,
+      "timestamp": "2026-08-29T09:13:29.474628Z"
+    },
+    {
+      "request_id": 15,
+      "filename": "5503.jpg",
+      "true_label": "dog",
+      "predicted": "cat",
+      "confidence": 0.6521,
+      "latency_ms": 14.9,
+      "correct": false,
+      "timestamp": "2026-08-29T09:13:31.569083Z"
+    },
+    {
+      "request_id": 16,
+      "filename": "5355.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.6609,
+      "latency_ms": 15.56,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:33.631849Z"
+    },
+    {
+      "request_id": 17,
+      "filename": "4968.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.9305,
+      "latency_ms": 13.57,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:35.706395Z"
+    },
+    {
+      "request_id": 18,
+      "filename": "7720.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.8064,
+      "latency_ms": 10.58,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:37.779638Z"
+    },
+    {
+      "request_id": 19,
+      "filename": "9890.jpg",
+      "true_label": "dog",
+      "predicted": "dog",
+      "confidence": 0.9525,
+      "latency_ms": 15.52,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:39.837491Z"
+    },
+    {
+      "request_id": 20,
+      "filename": "291.jpg",
+      "true_label": "cat",
+      "predicted": "cat",
+      "confidence": 0.9121,
+      "latency_ms": 52.28,
+      "correct": true,
+      "timestamp": "2026-08-29T09:13:41.948968Z"
+    }
+  ]
+}
