@@ -1,7 +1,5 @@
 # 🐱🐶 Cat vs Dog — End-to-End MLOps Pipeline
 
-> **MLOps Assignment 2** | S1-25_AIMLCZG523 | 50 Marks
->
 > An end-to-end MLOps pipeline for binary image classification (Cats vs Dogs)
 > built for a pet adoption platform — covering model development, packaging,
 > CI/CD, deployment, and monitoring.
@@ -327,5 +325,5 @@ dataset:
 - [x] `models/best_model.pt` — trained model artifact
 - [x] `models/training_curves.png`, `confusion_matrix.png` — MLflow artifacts
 - [x] `monitoring/performance_report.json` — M5 performance report
-- [ ] Zip file of all artifacts (create with: `git archive --format=zip HEAD -o submission.zip`)
-- [ ] Screen recording (≤ 5 min) demonstrating end-to-end workflow
+- [x] Zip file of all artifacts (create with: `git archive --format=zip HEAD -o submission.zip`)
+- [x] Screen recording (≤ 5 min) demonstrating end-to-end workflow
