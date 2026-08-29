@@ -97,8 +97,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pytest-results
-          path: |
-            .coverage
+          path: .coverage
+          if-no-files-found: ignore
           retention-days: 7
 
   # ──────────────────────────────────────────────────────────────────────────────
@@ -204,35 +204,47 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Pull the freshly published image
+      # 5. Resolve lowercase image name
+      #    CRITICAL: GHCR requires lowercase — github.repository may contain uppercase
+      - name: Resolve image name (lowercase)
+        run: |
+          IMAGE=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
+          echo "📦 Resolved image: ${IMAGE}:latest"
+
+      # 6. Pull the freshly published image
       - name: Pull latest image from GHCR
         run: |
-          docker pull ghcr.io/${{ github.repository }}:latest
-          echo "✅ Image pulled successfully"
+          docker pull ${{ env.IMAGE }}:latest
+          echo "✅ Image pulled: ${{ env.IMAGE }}:latest"
 
-      # 6. Start the container (detached, ephemeral deployment)
+      # 7. Start the container (detached, ephemeral deployment)
       - name: Start API container
         run: |
           docker run -d \
             --name cat_dog_smoke \
             -p 8000:8000 \
-            ghcr.io/${{ github.repository }}:latest
-          echo "Container started. Waiting for startup..."
+            ${{ env.IMAGE }}:latest
+          echo "Container ID: $(docker ps -q -f name=cat_dog_smoke)"
+          echo "Container started. Waiting for model to load..."
 
-      # 7. Wait for container to be healthy (poll /health for up to 60s)
+      # 8. Wait for container to be healthy (poll /health for up to 90s)
       - name: Wait for API to be ready
         run: |
           echo "Polling http://localhost:8000/health ..."
-          for i in $(seq 1 30); do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health || echo "000")
-            echo "  Attempt $i: HTTP $STATUS"
+          for i in $(seq 1 45); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health 2>/dev/null || echo "000")
+            echo "  Attempt $i/45: HTTP $STATUS"
             if [ "$STATUS" = "200" ]; then
               echo "✅ API is ready!"
-              break
+              exit 0
             fi
-            if [ "$i" = "30" ]; then
-              echo "❌ API did not become healthy after 60s"
+            if [ "$i" = "45" ]; then
+              echo "❌ API did not become healthy after 90s"
+              echo "=== Container Logs ==="
               docker logs cat_dog_smoke
+              echo "=== Container Status ==="
+              docker ps -a
               exit 1
             fi
             sleep 2
@@ -245,27 +257,29 @@ jobs:
         env:
           PYTHONPATH: .
 
-      # 9. Show container logs for traceability
+      # 10. Show container logs for traceability (always)
       - name: Show container logs
         if: always()
-        run: docker logs cat_dog_smoke
+        run: |
+          echo "=== Container Logs ==="
+          docker logs cat_dog_smoke 2>/dev/null || echo "(container not found)"
 
-      # 10. Cleanup — stop and remove the ephemeral test container
+      # 11. Cleanup — stop and remove the ephemeral test container
       - name: Cleanup container
         if: always()
         run: |
-          docker stop cat_dog_smoke || true
-          docker rm cat_dog_smoke || true
+          docker stop cat_dog_smoke 2>/dev/null || true
+          docker rm cat_dog_smoke 2>/dev/null || true
           echo "Container cleaned up."
 
-      # 11. Announce successful deployment
+      # 12. Announce successful deployment
       - name: Deployment complete
         if: success()
         run: |
           echo ""
           echo "🎉 ============================================"
           echo "   DEPLOYMENT SUCCESSFUL"
-          echo "   Image: ghcr.io/${{ github.repository }}:latest"
+          echo "   Image: ${{ env.IMAGE }}:latest"
           echo "   All smoke tests passed ✅"
           echo "=============================================="
 
